@@ -42,4 +42,4 @@ COPY --from=builder /app ./
 EXPOSE 10000
 
 # Start your Node server (Update to 'node dist/main.js' if using NestJS/TypeScript)
-CMD [ "node", "src/index.js" ]
+CMD [ "npm", "start" ]
