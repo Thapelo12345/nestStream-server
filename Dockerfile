@@ -1,20 +1,45 @@
-# 1. Use the official Playwright environment as the base image
-FROM ://microsoft.com
+# ==========================================
+# STAGE 1: Build & Install Dependencies
+# ==========================================
+FROM ://microsoft.com AS builder
 
-# 2. Set the working directory inside the container
 WORKDIR /app
 
-# 3. Copy package configuration files
+# Copy package configurations
 COPY package*.json ./
 
-# 4. Install production dependencies
-RUN npm ci --omit=dev
+# Install ALL dependencies (including devDependencies needed for compiling code)
+RUN npm ci
 
-# 5. Copy the rest of your server application files
+# Copy the rest of your application code
 COPY . .
 
-# 6. Expose the port your server listens on (Render uses port 10000 by default)
+# If you are using TypeScript / NestJS, uncomment the build command below:
+# RUN npm run build
+
+# ==========================================
+# STAGE 2: Lightweight Production Runtime
+# ==========================================
+FROM ://microsoft.com AS runner
+
+WORKDIR /app
+
+# Configure environmental variables for production
+ENV NODE_ENV=production
+ENV PORT=10000
+
+# Copy package configurations
+COPY package*.json ./
+
+# Install only production dependencies to save space
+RUN npm ci --omit=dev
+
+# Copy compiled application code from the builder stage
+# (If using TypeScript, change '.' to your output build folder, e.g., 'COPY --from=builder /app/dist ./dist')
+COPY --from=builder /app ./
+
+# Render routes network traffic via port 10000 by default
 EXPOSE 10000
 
-# 7. Start your server
+# Start your Node server (Update to 'node dist/main.js' if using NestJS/TypeScript)
 CMD [ "node", "src/index.js" ]
