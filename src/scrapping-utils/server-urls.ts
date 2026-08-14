@@ -13,7 +13,7 @@ async function getServerUrls(
   season?: string,
   episode?: string,
 ) {
-  browser = await chromium.launch({ headless: true});
+  browser = await chromium.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox']});
 
   const context = await browser.newContext();
   const mainPage = await context.newPage();

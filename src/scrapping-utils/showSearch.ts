@@ -5,7 +5,7 @@ const {retryAction, gettingTheSeason } = require("./scrappingUtils")
 const { navigatingPage3 } = require("./gettingShows")
 
 async function SeriesGetUrl(browser:any, pageUrl:string, title: string, season: string, episode: string){
-    browser = await chromium.launch({ headless: true });
+    browser = await chromium.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] });
     const context = await browser.newContext();
     const mainPage = await context.newPage();
 
@@ -78,7 +78,7 @@ async function SeriesGetUrl(browser:any, pageUrl:string, title: string, season: 
 }
 
 async function UpdateMovie(browser: any, pageUrl: string, title: string){
-  browser = await chromium.launch({ headless: true });
+  browser = await chromium.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] });
     const context = await browser.newContext();
     const mainPage = await context.newPage();
 
@@ -127,7 +127,7 @@ async function UpdateMovie(browser: any, pageUrl: string, title: string){
 
 
 async function FindShow(browser: any, pageUrl: string, title: string, typeOfShow: string){
-    browser = await chromium.launch({ headless: true });
+    browser = await chromium.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] });
     const context = await browser.newContext();
     const mainPage = await context.newPage();
 
@@ -295,7 +295,7 @@ async function AddSeason(browser: any, pageUrl: string, title: string){
   
   const cloudShow = await Series.findOne({ seriesHeader: title})
 
-    browser = await chromium.launch({ headless: true });
+    browser = await chromium.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] });
     const context = await browser.newContext();
     const mainPage = await context.newPage();
 
