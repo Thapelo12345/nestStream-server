@@ -1,5 +1,5 @@
 # ==========================================
-# STAGE 1: Build & Install Dependencies
+# STAGE 1: Build & Compile TypeScript
 # ==========================================
 FROM ://microsoft.com AS builder
 
@@ -8,14 +8,14 @@ WORKDIR /app
 # Copy package configurations
 COPY package*.json ./
 
-# Install ALL dependencies (including devDependencies needed for compiling code)
+# Install ALL dependencies (including devDependencies like typescript)
 RUN npm ci
 
 # Copy the rest of your application code
 COPY . .
 
-# If you are using TypeScript / NestJS, uncomment the build command below:
-# RUN npm run build
+# Compile your TypeScript code into JavaScript
+RUN npm run build
 
 # ==========================================
 # STAGE 2: Lightweight Production Runtime
@@ -35,11 +35,11 @@ COPY package*.json ./
 RUN npm ci --omit=dev
 
 # Copy compiled application code from the builder stage
-# (If using TypeScript, change '.' to your output build folder, e.g., 'COPY --from=builder /app/dist ./dist')
-COPY --from=builder /app ./
+# (This grabs your compiled JavaScript from the 'dist' folder)
+COPY --from=builder /app/dist ./dist
 
 # Render routes network traffic via port 10000 by default
 EXPOSE 10000
 
-# Start your Node server (Update to 'node dist/main.js' if using NestJS/TypeScript)
+# Start your Node server using your package.json start script
 CMD [ "npm", "start" ]
