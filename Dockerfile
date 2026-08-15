@@ -1,4 +1,4 @@
-FROM http://microsoft.com AS builder
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
