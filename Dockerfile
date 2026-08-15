@@ -1,44 +1,18 @@
-﻿# ==========================================
-# STAGE 1: Build & Compile TypeScript
-# ==========================================
-FROM https://microsoft.com AS builder
+﻿# Step 1: Start with a standard Node image
+FROM node:20-bookworm
 
+# Step 2: Set working directory
 WORKDIR /app
 
-# Copy package configurations
+# Step 3: Copy package files and install npm packages
 COPY package*.json ./
-
-# Install ALL dependencies (including devDependencies like typescript)
 RUN npm ci
 
-# Copy the rest of your application code
+# Step 4: Install Playwright browsers AND their system dependencies
+RUN npx playwright install --with-deps
+
+# Step 5: Copy application code
 COPY . .
 
-# Compile your TypeScript code into JavaScript
-RUN npm run build
-
-# ==========================================
-# STAGE 2: Lightweight Production Runtime
-# ==========================================
-FROM https://microsoft.com AS runner
-
-WORKDIR /app
-
-# Configure environmental variables for production
-ENV NODE_ENV=production
-ENV PORT=10000
-
-# Copy package configurations
-COPY package*.json ./
-
-# Install only production dependencies to save space
-RUN npm ci --omit=dev
-
-# Copy compiled application code from the builder stage
-COPY --from=builder /app/dist ./dist
-
-# Render routes network traffic via port 10000 by default
-EXPOSE 10000
-
-# Start your Node server using your package.json start script
-CMD [ "npm", "start" ]
+# Step 6: Run your script
+CMD ["npm", "start"]
