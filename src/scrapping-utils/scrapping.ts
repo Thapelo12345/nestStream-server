@@ -15,7 +15,19 @@ async function webSiteScrapper(
   pageUrl: string,
   showType: string,
 ) {
-  browser = await chromium.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'] });
+  // browser = await chromium.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'] });
+  browser = await chromium.launch({headles: true,
+      args: [
+      '--no-sandbox',
+    '--disable-setuid-sandbox',
+    '--disable-dev-shm-usage', 
+    '--disable-accelerated-2d-canvas', 
+    '--disable-gpu', 
+    '--no-zygote', 
+    '--single-process',              
+    '--js-flags="--max-old-space-size=150"'
+      ]
+    })
   const context = await browser.newContext();
   const mainPage = await context.newPage();
 
@@ -270,7 +282,19 @@ async function webSiteScrapper(
 } //end of website scrapper function
 
 async function brandNewShows(browser: any, pageUrl: string) {
-  browser = await chromium.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'] });
+  // browser = await chromium.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'] });
+  browser = await chromium.launch({headles: true,
+      args: [
+      '--no-sandbox',
+    '--disable-setuid-sandbox',
+    '--disable-dev-shm-usage', 
+    '--disable-accelerated-2d-canvas', 
+    '--disable-gpu', 
+    '--no-zygote', 
+    '--single-process',              
+    '--js-flags="--max-old-space-size=150"'
+      ]
+    })
   const context = await browser.newContext();
   const mainPage = await context.newPage();
 
