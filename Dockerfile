@@ -6,7 +6,8 @@ WORKDIR /app
 
 # Step 3: Copy package files and install npm packages
 COPY package*.json ./
-RUN npm ci
+# RUN npm ci
+RUN npm install
 
 # Step 4: Install Playwright browsers AND their system dependencies
 RUN npx playwright install --with-deps

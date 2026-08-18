@@ -294,8 +294,8 @@ async function FindShow(
 
     const mainUrl = await mainPage.url()
 
+    console.log("This is the main Url: \n", mainUrl)
     if(!mainUrl) {
-      console.log("This is the main Url: \n", mainUrl)
       throw new Error("Now Url Found!.")
     }
 
@@ -310,7 +310,7 @@ async function FindShow(
     })
 
     console.log("Second server Has responded!.")
-    
+
     if(!secondServer.ok) throw new Error("Failed to connect with the second server!.")
       const secondServerData = await secondServer.json() as any
 
