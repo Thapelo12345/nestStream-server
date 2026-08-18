@@ -1,8 +1,7 @@
 const { chromium } = require("playwright");
-const { server2 } = require("../constant/secondServerUrl")
 const { Series, Movies } = require("../dataBase/connection");
 const { navigatingPage3 } = require("./gettingShows");
-const {retryAction, gettingTheSeason, scrappeCardInfo } = require("./scrappingUtils");
+const {retryAction, gettingTheSeason, GetSeason, scrappeCardInfo } = require("./scrappingUtils");
 
 
 async function brandNewShows(browser: any, pageUrl: string) {
@@ -87,22 +86,9 @@ async function brandNewShows(browser: any, pageUrl: string) {
 
       const currentUrl = mainPage.url()
       const currentSeason = seasons[0]
-
-      const secondServer = await fetch(`${server2}/get-season`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          url: currentUrl,
-          Season: currentSeason
-        })
-      })
-
-      if(!secondServer.ok) throw new Error("Failed to get Seasons From the second Server!.")
-        const secondServerData = await secondServer.json() as any
-
-      if(secondServerData.message !== "Season retrived successfully!.") throw new Error(secondServerData.message)
-
-      seasonsAndEpisodes.push(secondServerData.results)
+// 
+      const fullSeason = await GetSeason(mainPage, seasons[0])
+      seasonsAndEpisodes.push(fullSeason)
 
       const waitingSeasons = seasons.filter((season: string) => {
         let seasonExist = false;

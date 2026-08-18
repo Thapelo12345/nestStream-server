@@ -1,10 +1,10 @@
 const { chromium } = require("playwright");
-const { server2 } = require("../constant/secondServerUrl")
 const { Series, Movies } = require("../dataBase/connection");
 const {
   retryAction,
   gettingTheSeason,
   scrappeCardInfo,
+  GetSeason
 } = require("./scrappingUtils");
 const { navigatingPage3 } = require("./gettingShows");
 
@@ -292,42 +292,13 @@ async function FindShow(
     const seasonsAndEpisodes: any[] = [];
     let newSeason: any;
 
-    const mainUrl = await mainPage.url()
+    const detailsPageUrl = await mainPage.url()
 
-    console.log("This is the main Url: \n", mainUrl)
-    if(!mainUrl) {
-      throw new Error("Now Url Found!.")
-    }
+    if(!detailsPageUrl) throw new Error("Now Url Found!.")
 
-    console.log("Contacting Second server!...")
-    const secondServer = await fetch(`${server2}/get-season`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        url: mainUrl,
-        Season: seasons[0]
-      })
-    })
+      const fullSeason = await GetSeason(mainPage, seasons[0])
 
-    console.log("Second server Has responded!.")
-
-    if(!secondServer.ok) throw new Error("Failed to connect with the second server!.")
-      const secondServerData = await secondServer.json() as any
-
-    if(secondServerData.message !== "Season retrived successfully!.") throw new Error(secondServerData.message)
-
-      seasonsAndEpisodes.push(secondServerData.results)
-
-/*
-    // open page 3 first and get url opening a third new browser tap
-    // TODO: opening new tab
-    // const page3 = await context.newPage();
-    // let page3Url = await navigatingPage3(mainPage, page3);
-    console.log("I am getting a series show");
-
-    // newSeason = await gettingTheSeason(mainPage, seasons[0], page3Url, page3);
-    */
-    seasonsAndEpisodes.push(newSeason);
+      seasonsAndEpisodes.push(fullSeason);
 
     const waitingSeasons = seasons.filter((season: string) => {
       let seasonExist = false;
@@ -339,7 +310,7 @@ async function FindShow(
       } //end of 4 loop
       if (!seasonExist) return season;
     });
-    
+
     const uploadedSeries = await Series.create({
       seriesHeader: showHeader,
       seriesTag: tagLine,
@@ -355,11 +326,9 @@ async function FindShow(
       lastUpdate: "1010-05-10",
     });
 
-    // await page3.close();
-    const tempShow = await Series.findOne({
-      seriesHeader: uploadedSeries.seriesHeader,
-    }).lean();
+    const tempShow = await Series.findOne({seriesHeader: uploadedSeries.seriesHeader,}).lean();
     return tempShow;
+    
   } //end of series if
   else {
     const watchBtn = await mainPage.locator("#watch-btn");
@@ -391,7 +360,8 @@ async function FindShow(
       movieHeader: uploadedMovie.movieHeader,
     }).lean();
     return tempShow;
-  }
+  } 
+  
 } //end of find show function
 
 async function AddSeason(browser: any, pageUrl: string, title: string) {

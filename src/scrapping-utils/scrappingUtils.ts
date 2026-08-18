@@ -1,6 +1,12 @@
 const cheerio = require("cheerio");
 const mediaUrl: string[] = []
 
+type EPISODE = {
+  _id: boolean;
+name: String;
+ title: String;
+  play: String;
+}
 // playwright re-try global function
 async function retryAction<T>(
   action: () => Promise<T>,
@@ -116,6 +122,89 @@ async function gettingTheSeason(
   return { season: currentSeason, episodes: episodesArr };
 } //end of getting season function
 
+async function GetSeason(currentPage: any, currentSeason: string){
+const seasonNumber = currentSeason.split(" ")[1]
+if(!seasonNumber) throw new Error("No Season FOUND!.")
+
+const seasonMainBtn = await currentPage.locator("#season-btn")
+console.log("Opening season btn from detail page")
+
+console.log("Clicking the season btn to open the season dropdown1.")
+await seasonMainBtn.click()
+await currentPage.locator("#season-dropdown").waitFor({state: "visible"})
+
+ const allSeasonBtn = await currentPage.locator("#season-dropdown .dropdown-item ").all()
+
+ for(const season of allSeasonBtn){
+  const seasonNumberValue = await season.getAttribute('data-season');
+
+  if(seasonNumberValue.trim() === seasonNumber.trim()){
+    console.log("This is the current season: ", seasonNumber)
+    await season.click()
+    await currentPage.locator("#season-dropdown").waitFor({state: "hidden"})
+    break;
+  }
+ }//end of 4 loop
+
+
+//  get all the episodes
+ const episodes:EPISODE[] = [] 
+ 
+ console.log("Getting all episodes from Details page!.")
+ const mainEpisodeBtn  = await currentPage.locator("#episode-btn")
+
+ console.log("opening episode drop down menu!.")
+
+ await mainEpisodeBtn.click()
+ await currentPage.locator("#episode-dropdown").waitFor({state: "visible"})
+
+ const AllEpisodes = await currentPage.locator("#episode-dropdown .dropdown-item ").all()
+
+ // for each episode create an object
+for(const episode of AllEpisodes){
+  const rawText = await episode.textContent()
+  const arr = rawText.trim().split("-")
+
+  console.log(`Creating ${arr[0]}`)
+  episodes.push({_id: false, name: arr[0].trim(), title: arr[1], play: ""})
+}//end of 4 loop
+
+console.log("Getting episode Url's")
+
+const watchBtn = await currentPage.locator("#watch-btn")
+await watchBtn.click()
+await currentPage.locator("#watch-dropdown").waitFor({state: "visible"})
+
+const server1 = await currentPage.locator("#watch-dropdown .watch-dropdown-item").first()
+console.log("opening the first epsode 1 url!.")
+await server1.click()
+await currentPage.locator("#player-iframe").waitFor({state: "visible"})
+
+const firstFrameUrl = await currentPage.url()
+
+for(const episode of episodes){
+  const remove = "episode=1"
+  const episodeNumber = episode.name.split(" ")[1]?.trim()
+
+  if(episodeNumber !== "1"){
+    // console.log(`Moving to episode ${episodeNumber}`)
+
+    const add = `episode=${episodeNumber}`
+
+    const newUrl = firstFrameUrl.replace(remove, add)
+    await currentPage.goto(newUrl, { waitUntil: "domcontentloaded" })
+    await currentPage.locator("#player-iframe").waitFor({state: "visible"})
+  }//end of if
+
+  console.log(`Getting Episode ${episodeNumber}`)
+  const playLink = await currentPage.locator("#player-iframe").getAttribute("src")
+  episode.play = playLink
+}//end of 4 loop
+
+return {_id: false, currentSeason, episodes}
+
+}
+
 async function scrappeCardInfo(page: any){
   // Doing cheerio scraping on the *new* tab page
       let secondTapHtml = await page.content();
@@ -144,4 +233,4 @@ async function scrappeCardInfo(page: any){
     return {showHeader, tagLine, showLanguage, description, genres, imageUrl, year, rate, cast, seasons}
 }//end of scrappe function
 
-module.exports = { retryAction, episodesPlayableUrls, gettingTheSeason, scrappeCardInfo }
+module.exports = { retryAction, episodesPlayableUrls, gettingTheSeason, scrappeCardInfo, GetSeason }
