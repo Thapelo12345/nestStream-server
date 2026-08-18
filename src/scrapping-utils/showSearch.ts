@@ -294,6 +294,12 @@ async function FindShow(
 
     const mainUrl = await mainPage.url()
 
+    if(!mainUrl) {
+      console.log("This is the main Url: \n", mainUrl)
+      throw new Error("Now Url Found!.")
+    }
+
+    console.log("Contacting Second server!...")
     const secondServer = await fetch(`${server2}/get-season`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -303,6 +309,8 @@ async function FindShow(
       })
     })
 
+    console.log("Second server Has responded!.")
+    
     if(!secondServer.ok) throw new Error("Failed to connect with the second server!.")
       const secondServerData = await secondServer.json() as any
 
