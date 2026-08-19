@@ -63,64 +63,6 @@ async function episodesPlayableUrls(
     }
 } //end of episodes playable urls function
 
-async function gettingTheSeason(
-  mainCard: any,
-  currentSeason: string,
-  originalUrl: string,
-  thirdPage: any,
-) {
-  const seasonBtn = mainCard.locator("#season-btn");
-
-  console.log("Click the season btn");
-  await seasonBtn.click();
-  await mainCard.locator("#season-dropdown").waitFor({ state: "visible" })
-
-  console.log("Clicking from the dropdown menu!.");
-
-  const dropdownSelected = mainCard.locator(`[data-season="${currentSeason.split(" ")[1]}"]`)
-
-  await dropdownSelected.click();
-  await mainCard.locator("#season-dropdown").waitFor({state: "hidden" })
-
-  console.log("updating cheerio!");
-  const newUrl = await mainCard.content();
-  let $2 = await cheerio.load(newUrl);
-
-  // getting season format
-  const seasonArray = currentSeason.toLowerCase().split(" ");
-  const previouse_season_number =
-    seasonArray[1] !== "1"
-      ? Number(seasonArray[1]) - 1
-      : Number(seasonArray[1]);
-  const baseSeasonFormat = "&" + seasonArray[0] + "=" + seasonArray[1];
-
-  const previouse_format = `&season=${previouse_season_number}`;
-
-  // change the original url
-  const copyUrl3 = originalUrl.replace(previouse_format, baseSeasonFormat);
-  originalUrl = copyUrl3;
-
-  // getting all season episodes
-  const episodesArr = $2("#episode-dropdown .dropdown-item")
-    .toArray()
-    .map((episode: any) => {
-      const arr = $2(episode).text().trim().split("-");
-      const episodeName = arr[0].trim();
-      const episodeTitle = arr[1].trim();
-      return { name: episodeName, title: episodeTitle, play: "" };
-    });
-
-  // starting episodes loop
-  for (const episode of episodesArr) {
-    console.log(`\nSeason: ${currentSeason}\nEpisode: ${episode.name}`);
-    console.log("Getting episode playable url!");
-    episode.play = await episodesPlayableUrls(originalUrl, episode, thirdPage);
-    console.log("Done getting Url!");
-  } //end of episode loop
-
-  return { season: currentSeason, episodes: episodesArr };
-} //end of getting season function
-
 async function GetSeason(currentPage: any, currentSeason: string){
 const seasonNumber = currentSeason.split(" ")[1]
 if(!seasonNumber) throw new Error("No Season FOUND!.")
@@ -199,8 +141,7 @@ for(const episode of episodes){
 }//end of 4 loop
 
 return {currentSeason, episodes}
-
-}
+}//end of Get season function
 
 async function scrappeCardInfo(page: any){
   // Doing cheerio scraping on the *new* tab page
@@ -230,4 +171,4 @@ async function scrappeCardInfo(page: any){
     return {showHeader, tagLine, showLanguage, description, genres, imageUrl, year, rate, cast, seasons}
 }//end of scrappe function
 
-module.exports = { retryAction, episodesPlayableUrls, gettingTheSeason, scrappeCardInfo, GetSeason }
+module.exports = { retryAction, episodesPlayableUrls, scrappeCardInfo, GetSeason }

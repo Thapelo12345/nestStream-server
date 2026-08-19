@@ -2,11 +2,9 @@ const { chromium } = require("playwright");
 const { Series, Movies } = require("../dataBase/connection");
 const {
   retryAction,
-  gettingTheSeason,
   scrappeCardInfo,
   GetSeason
 } = require("./scrappingUtils");
-const { navigatingPage3 } = require("./gettingShows");
 
 async function SeriesGetUrl(
   browser: any,
@@ -293,14 +291,7 @@ async function FindShow(
     let newSeason: any;
 
     const fullSeason = await GetSeason(mainPage, seasons[0])
-    console.log(fullSeason)
-    debugger
     newSeason =  { season: fullSeason.currentSeason, episodes: fullSeason.episodes }
-    // const detailsPageUrl = await mainPage.url()
-
-    // if(!detailsPageUrl) throw new Error("Now Url Found!.")
-
-    //   const fullSeason = await GetSeason(mainPage, seasons[0])
 
       seasonsAndEpisodes.push(newSeason);
 
