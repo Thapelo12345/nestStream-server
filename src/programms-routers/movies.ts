@@ -64,24 +64,6 @@ router.get("/get-playableLinks", async(req:Request, res:Response)=>{
   finally {if (browser) await browser.close();}
 })
 
-router.get("/add-new", async (req: Request, res: Response) => {
-  console.log("Adding new movies!...")
-  let browser: any = null;
-
-  try {
-    
-    await webSiteScrapper(browser, moviesUrl, "movies")
-    res.json({message: "Retrival was a SUCCESSFULL!" }).status(200)
-
-  } catch (err: unknown) {
-
-    const errMessage =
-      err instanceof Error ? err.message : "unknown server error!.";
-    return res.json({ message: errMessage }).status(401);
-  } //end of catch
-
-  finally {if (browser) await browser.close();}//end of final
-}); //end of getting all movies route
 
 router.get("/programs", async (req: Request, res: Response) => {
   try {

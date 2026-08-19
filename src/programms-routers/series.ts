@@ -80,21 +80,6 @@ router.get("/new-series", async(req: Request, res: Response)=>{
   finally{if (browser) await browser.close();}
 })
 
-router.get("/add-new", async (req: Request, res: Response) => {
-  let browser: any = null;
-  try{
-
-    await webSiteScrapper(browser, seriesUrl, "series")
-    res.json({ message: "Retrival was a SUCCESSFULL!" });
-  }
-  catch (err: unknown) {
-    const errMessage = err instanceof Error ? err.message : "unknown server error!.";
-    return res.json({ message: errMessage }).status(401);
-  } //end of catch
-
-  finally {if (browser) await browser.close();}//end of final
-})
-
 router.get("/programs", async (req: Request, res: Response) => {
   try {
     const show = await Series.find({});
@@ -152,7 +137,9 @@ router.post("/add-season", async(req: Request, res: Response)=>{
 
     if(!Title) throw new Error("Title empty!..")
     const nextSeason = await AddSeason(browser, seriesUrl, Title)
-    res.json({message: "Season Retrived successfully!.", Season: nextSeason}).status(200)
+    debugger
+
+    res.json({message: "Season Retrived successfully!.", nextSeason}).status(200)
 
   }
   catch(err: unknown){

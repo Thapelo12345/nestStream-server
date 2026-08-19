@@ -292,13 +292,17 @@ async function FindShow(
     const seasonsAndEpisodes: any[] = [];
     let newSeason: any;
 
-    const detailsPageUrl = await mainPage.url()
+    const fullSeason = await GetSeason(mainPage, seasons[0])
+    console.log(fullSeason)
+    debugger
+    newSeason =  { season: fullSeason.currentSeason, episodes: fullSeason.episodes }
+    // const detailsPageUrl = await mainPage.url()
 
-    if(!detailsPageUrl) throw new Error("Now Url Found!.")
+    // if(!detailsPageUrl) throw new Error("Now Url Found!.")
 
-      const fullSeason = await GetSeason(mainPage, seasons[0])
+    //   const fullSeason = await GetSeason(mainPage, seasons[0])
 
-      seasonsAndEpisodes.push(fullSeason);
+      seasonsAndEpisodes.push(newSeason);
 
     const waitingSeasons = seasons.filter((season: string) => {
       let seasonExist = false;
@@ -385,8 +389,7 @@ async function AddSeason(browser: any, pageUrl: string, title: string) {
 
   // opening upLink to page
   console.log("OPENING THE SERIES PAGE\n");
-  await retryAction(
-    async () => {
+  await retryAction(async () => {
       await mainPage.goto(pageUrl, { waitUntil: "domcontentloaded" });
     },
     4,
@@ -425,19 +428,9 @@ async function AddSeason(browser: any, pageUrl: string, title: string) {
     15000,
   );
 
-  // open page 3 first and get url opening a third new browser tap
-  const page3 = await context.newPage();
-  let page3Url = await navigatingPage3(mainPage, page3);
+  const fullSeason = await GetSeason(mainPage, cloudShow.pendingSeasons[0])
+  const newSeason =  { season: fullSeason.currentSeason, episodes: fullSeason.episodes }
 
-  console.log("Getting the next new season!..\n");
-  const newSeason = await gettingTheSeason(
-    mainPage,
-    cloudShow.pendingSeasons[0],
-    page3Url,
-    page3,
-  );
-
-  await page3.close();
   cloudShow.seriesSeasons.push(newSeason);
   cloudShow.markModified("seriesSeasons");
   await cloudShow.save();

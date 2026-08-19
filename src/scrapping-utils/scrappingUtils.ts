@@ -2,7 +2,6 @@ const cheerio = require("cheerio");
 const mediaUrl: string[] = []
 
 type EPISODE = {
-  _id: boolean;
 name: String;
  title: String;
   play: String;
@@ -166,7 +165,7 @@ for(const episode of AllEpisodes){
   const arr = rawText.trim().split("-")
 
   console.log(`Creating ${arr[0]}`)
-  episodes.push({_id: false, name: arr[0].trim(), title: arr[1], play: ""})
+  episodes.push({name: arr[0].trim(), title: arr[1], play: ""})
 }//end of 4 loop
 
 console.log("Getting episode Url's")
@@ -187,8 +186,6 @@ for(const episode of episodes){
   const episodeNumber = episode.name.split(" ")[1]?.trim()
 
   if(episodeNumber !== "1"){
-    // console.log(`Moving to episode ${episodeNumber}`)
-
     const add = `episode=${episodeNumber}`
 
     const newUrl = firstFrameUrl.replace(remove, add)
@@ -201,7 +198,7 @@ for(const episode of episodes){
   episode.play = playLink
 }//end of 4 loop
 
-return {_id: false, currentSeason, episodes}
+return {currentSeason, episodes}
 
 }
 
