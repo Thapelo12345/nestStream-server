@@ -388,22 +388,15 @@ async function AddSeason(browser: any, pageUrl: string, title: string) {
   );
   await mainPage.locator("#search-input").waitFor({ state: "visible" });
 
-  console.log("Entering the movie header on the Search Bar!.");
+  console.log("Entering the series header on the Search Bar!.");
   await mainPage.getByPlaceholder("Enter keywords...").fill(title);
 
   console.log(`Searching for: ${title}`);
   const searchBtn = await mainPage.locator("#search-btn");
   console.log("Clicking Search btn!.");
   await searchBtn.click();
-  await mainPage.locator(".page-btn").waitFor({ state: "hidden" });
 
-  await retryAction(
-    async () => {
-      await mainPage.waitForSelector(".show-card");
-    },
-    2,
-    1500,
-  );
+  await mainPage.locator(".show-card").first().waitFor({state: "visible"})
 
   const card = await mainPage.locator(".show-card").first();
 

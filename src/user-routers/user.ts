@@ -23,7 +23,7 @@ router.get("/find-User:ID", async (req: Request, res: Response) => {
 
   try {
 
-    if(LockManager.isBusy()) throw new Error("Server is Currently Busy with another Process!.")
+    if(LockManager.isBusy()) res.json({message: "Server is Currently Busy with another Process!."})
     LockManager.setBusy(true)
 
     const matchingUser = await User.findOne({ userId: ID });
@@ -32,31 +32,24 @@ router.get("/find-User:ID", async (req: Request, res: Response) => {
     console.log("The user was FOUND!...");
     res.json({ message: "Successfully FOUND user!..", matchingUser });
   } catch (err: unknown) {
-
     const errMessage = err instanceof Error ? err.message : "unkown Server Error!.."
     console.error(errMessage)
 
-    errMessage === "Server is Currently Busy with another Process!." ?
-    res.json({message: errMessage}) :
     res.json({ message: "Failed to find User!.." });
+
   }finally{LockManager.setBusy(false)}
 });
 
 router.put("/new-user", async (req: Request, res: Response) => {
   const { name, id, email, image, imageId } = req.body;
-
   try {
 
-    if(LockManager.isBusy()) throw new Error("Server is Currently Busy with another Process!.")
+    if(LockManager.isBusy()) res.json({message: "Server is Currently Busy with another Process!."})
     LockManager.setBusy(true)
 
-    if (!name || !id || !email)
-      throw new Error("You have NOT ENTERED your credentials YET!.");
-
-    if (await User.findOne({ userId: id }))
-      throw new Error("User credentials Exist!.");
-    if (await User.findOne({ userEmail: email }))
-      throw new Error("Email already Exist!.");
+    if (!name || !id || !email)throw new Error("You have NOT ENTERED your credentials YET!.");
+    if (await User.findOne({ userId: id }))throw new Error("User credentials Exist!.");
+    if (await User.findOne({ userEmail: email }))throw new Error("Email already Exist!.");
 
     const myDate = new Date();
 
@@ -81,22 +74,19 @@ router.put("/new-user", async (req: Request, res: Response) => {
 
     res.json({ message: "User created successfully!..", newUser });
   } catch (err: unknown) {
-    const errMessage =
-      err instanceof Error ? err.message : "unkwon cloud error!..";
+    const errMessage = err instanceof Error ? err.message : "unkwon cloud error!..";
     console.error(errMessage);
 
-    errMessage === "Server is Currently Busy with another Process!." ?
-    res.json({message: errMessage}) :
     res.json({ message: errMessage });
+
   }finally{LockManager.setBusy(false)}
 });
 
 router.post("/update-userLikes", async (req: Request, res: Response) => {
   const { id, userLikes } = req.body;
-
   try {
 
-    if(LockManager.isBusy()) throw new Error("Server is Currently Busy with another Process!.")
+    if(LockManager.isBusy()) res.json({message: "Server is Currently Busy with another Process!."})
     LockManager.setBusy(true)
 
     const user = await User.findOne({ userId: id });
@@ -111,20 +101,16 @@ router.post("/update-userLikes", async (req: Request, res: Response) => {
   } catch (err: unknown) {
     const errMessage = err instanceof Error ? err.message : "unknown error!.."
     console.log(errMessage);
-
-    errMessage === "Server is Currently Busy with another Process!." ?
-    res.json({message: errMessage}) :
     res.json({ message: "Failed to update userLikes on the CLOUD!..." });
+
   }finally{LockManager.setBusy(false)}
-  
 });
 
 router.post("/update-continue-watch", async(req: Request, res: Response)=>{
   const { id, continueWatch } = req.body
-
   try{
 
-    if(LockManager.isBusy()) throw new Error("Server is Currently Busy with another Process!.")
+    if(LockManager.isBusy()) res.json({message: "Server is Currently Busy with another Process!."})
     LockManager.setBusy(true)
 
     const user = await User.findOne({userId: id})
@@ -145,19 +131,20 @@ router.post("/update-history", async (req: Request, res: Response)=>{
   const { id, history } = req.body
 
   try{
-    if(LockManager.isBusy()) throw new Error("Server is Currently Busy with another Process!.")
+    if(LockManager.isBusy()) res.json({message: "Server is Currently Busy with another Process!."})
     LockManager.setBusy(true)
 
     const user = await User.findOne({userId: id})
     user.watchHistory = history
     await user.save()
+
     res.json({message: "Cloud SuccessFully Updated!."})
   }
-
   catch(err: unknown){
     const errMessage = err instanceof Error ? err.message : "unknown Server Error!."
     console.error(errMessage)
     res.json({message: errMessage})
+
   }finally{LockManager.setBusy(false)}
 })
 
@@ -166,7 +153,7 @@ router.post("/update-user-image:ID", async (req: Request, res: Response) => {
   const { image, imageID } = req.body;
 
   try {
-    if(LockManager.isBusy()) throw new Error("Server is Currently Busy with another Process!.")
+    if(LockManager.isBusy()) res.json({message: "Server is Currently Busy with another Process!."})
     LockManager.setBusy(true)
 
     const user = await User.findOne({ userId: ID });
@@ -181,10 +168,8 @@ router.post("/update-user-image:ID", async (req: Request, res: Response) => {
     res.json({ message: "Image Updated Successfully!." });
   } catch (err: unknown) {
     const errMessage = err instanceof Error ? err.message : "inknown cload error!."
-    console.error(err instanceof Error ? err.message : "unknown cloud error!.");
+    console.error(errMessage);
 
-    errMessage === "Server is Currently Busy with another Process!." ?
-    res.json({message: errMessage}) :
     res.json({ message: "Failed To Update Profile Image!..." });
   }finally{LockManager.setBusy(false)}
 });
@@ -194,7 +179,7 @@ router.post("/update-user-name:ID", async (req: Request, res: Response) => {
   const { name } = req.body;
 
   try {
-    if(LockManager.isBusy()) throw new Error("Server is Currently Busy with another Process!.")
+    if(LockManager.isBusy()) res.json({message: "Server is Currently Busy with another Process!."})
     LockManager.setBusy(true)
 
     const user = await User.findOne({ userId: ID });
@@ -202,9 +187,9 @@ router.post("/update-user-name:ID", async (req: Request, res: Response) => {
     await user.save();
     console.log("Update was Successful!.");
     res.json({ message: "Update was Successful!." });
+
   } catch (err: unknown) {
-    const errMessage =
-      err instanceof Error ? err.message : "Failed to Update userName";
+    const errMessage = err instanceof Error ? err.message : "Failed to Update userName";
     console.error("This is the Error: ", errMessage);
     res.json({ message: errMessage });
   }finally{LockManager.setBusy(false)}
@@ -216,7 +201,6 @@ router.get("/imageKit-auth", async (req: Request, res: Response) => {
     res.json({ ...authParams, publicKey: process.env.IMAGEKIT_PUBLIC_KEY }); // Returns token, expire, and signature
   }
 
-  
 });
 
 router.delete("/delete-image:imageId", async (req: Request, res: Response) => {
@@ -237,6 +221,5 @@ router.delete("/delete-image:imageId", async (req: Request, res: Response) => {
     });
   }
 }); //end of deletion router
-
 
 module.exports = router;
