@@ -21,9 +21,9 @@ router.get("/", (req: Request, res: Response) => {
 router.get("/find-User:ID", async (req: Request, res: Response) => {
   const { ID } = req.params;
 
+  if(LockManager.isBusy()) res.json({message: "Server is Currently Busy with another Process!."})
+    
   try {
-
-    if(LockManager.isBusy()) res.json({message: "Server is Currently Busy with another Process!."})
     LockManager.setBusy(true)
 
     const matchingUser = await User.findOne({ userId: ID });
@@ -42,9 +42,10 @@ router.get("/find-User:ID", async (req: Request, res: Response) => {
 
 router.put("/new-user", async (req: Request, res: Response) => {
   const { name, id, email, image, imageId } = req.body;
-  try {
 
-    if(LockManager.isBusy()) res.json({message: "Server is Currently Busy with another Process!."})
+  if(LockManager.isBusy()) res.json({message: "Server is Currently Busy with another Process!."})
+  
+    try {
     LockManager.setBusy(true)
 
     if (!name || !id || !email)throw new Error("You have NOT ENTERED your credentials YET!.");
@@ -84,9 +85,10 @@ router.put("/new-user", async (req: Request, res: Response) => {
 
 router.post("/update-userLikes", async (req: Request, res: Response) => {
   const { id, userLikes } = req.body;
-  try {
 
-    if(LockManager.isBusy()) res.json({message: "Server is Currently Busy with another Process!."})
+  if(LockManager.isBusy()) res.json({message: "Server is Currently Busy with another Process!."})
+
+  try {
     LockManager.setBusy(true)
 
     const user = await User.findOne({ userId: id });
@@ -108,9 +110,10 @@ router.post("/update-userLikes", async (req: Request, res: Response) => {
 
 router.post("/update-continue-watch", async(req: Request, res: Response)=>{
   const { id, continueWatch } = req.body
-  try{
+  
+  if(LockManager.isBusy()) res.json({message: "Server is Currently Busy with another Process!."})
 
-    if(LockManager.isBusy()) res.json({message: "Server is Currently Busy with another Process!."})
+  try{
     LockManager.setBusy(true)
 
     const user = await User.findOne({userId: id})
@@ -130,8 +133,8 @@ router.post("/update-continue-watch", async(req: Request, res: Response)=>{
 router.post("/update-history", async (req: Request, res: Response)=>{
   const { id, history } = req.body
 
+  if(LockManager.isBusy()) res.json({message: "Server is Currently Busy with another Process!."})
   try{
-    if(LockManager.isBusy()) res.json({message: "Server is Currently Busy with another Process!."})
     LockManager.setBusy(true)
 
     const user = await User.findOne({userId: id})

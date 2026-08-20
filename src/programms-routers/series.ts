@@ -19,8 +19,9 @@ router.get("/", async (req: Request, res: Response) => {
 });
 
 router.get("/latestDate", async (req: Request, res: Response) => {
+  if (LockManager.isBusy()) res.json({message: "Server is Currently Busy!."});
+  
   try {
-    if (LockManager.isBusy()) res.json({message: "Server is Currently Busy!."});
     LockManager.setBusy(true);
 
     const allSeries = await Series.find();
@@ -77,8 +78,9 @@ router.get("/latestDate", async (req: Request, res: Response) => {
 
 router.get("/new-series", async (req: Request, res: Response) => {
   let browser: any;
+  if (LockManager.isBusy()) res.json({message: "Server is Currently Busy with another Process!."});
+
   try {
-    if (LockManager.isBusy()) res.json({message: "Server is Currently Busy with another Process!."});
     LockManager.setBusy(true);
 
     const results = await brandNewShows(browser, seriesUrl);
@@ -96,8 +98,9 @@ router.get("/new-series", async (req: Request, res: Response) => {
 });
 
 router.get("/programs", async (req: Request, res: Response) => {
+  if (LockManager.isBusy()) res.json({message: "Server is Currently Busy with another Process!."});
+
   try {
-    if (LockManager.isBusy()) res.json({message: "Server is Currently Busy with another Process!."});
     LockManager.setBusy(true);
 
     const show = await Series.find({});
@@ -116,9 +119,9 @@ router.get("/programs", async (req: Request, res: Response) => {
 router.post("/get-playableLinks", async (req: Request, res: Response) => {
   let browser: any = null;
   const { seriesName, season, episode } = req.body;
+  if (LockManager.isBusy()) res.json({message: "Server is Currently Busy with another Process!."});
 
   try {
-    if (LockManager.isBusy()) res.json({message: "Server is Currently Busy with another Process!."});
     LockManager.setBusy(true);
 
     const playableServer = await getServerUrls(
@@ -145,9 +148,9 @@ router.post("/get-playableLinks", async (req: Request, res: Response) => {
 router.post("/search-url", async (req: Request, res: Response) => {
   const { Title, Season, Episode } = req.body;
   let browser: any = null;
+  if (LockManager.isBusy()) res.json({message: "Server is Currently Busy with another Process!."});
 
   try {
-    if (LockManager.isBusy()) res.json({message: "Server is Currently Busy with another Process!."});
     LockManager.setBusy(true);
 
     const url = await SeriesGetUrl(browser, seriesUrl, Title, Season, Episode);
@@ -171,9 +174,9 @@ router.post("/add-season", async (req: Request, res: Response) => {
   const { Title } = req.body;
 
   let browser: any;
+  if (LockManager.isBusy()) res.json({message: "Server is Currently Busy with another Process!."});
 
   try {
-    if (LockManager.isBusy()) res.json({message: "Server is Currently Busy with another Process!."});
     LockManager.setBusy(true);
 
     if (!Title) throw new Error("Title empty!..");
@@ -195,8 +198,10 @@ router.post("/add-season", async (req: Request, res: Response) => {
 router.post("/find-show", async (req: Request, res: Response) => {
   const { Title, showType } = req.body;
   let browser: any;
+
+  if (LockManager.isBusy()) res.json({message: "Server is Currently Busy with another Process!."});
+
   try {
-    if (LockManager.isBusy()) res.json({message: "Server is Currently Busy with another Process!."});
     LockManager.setBusy(true);
 
     const newShow = await FindShow(browser, seriesUrl, Title, showType);

@@ -17,9 +17,9 @@ router.get("/", async (req: Request, res: Response) => {
 
 router.get("/new-movies", async (req: Request, res: Response) => {
   let browser: any;
-  
+  if (LockManager.isBusy()) res.json({ message: "Server is Currently Busy with another Process!."});
+
   try {
-    if (LockManager.isBusy()) res.json({ message: "Server is Currently Busy with another Process!."});
       LockManager.setBusy(true);
 
       const results = await brandNewShows(browser, moviesUrl);
@@ -38,10 +38,10 @@ router.get("/new-movies", async (req: Request, res: Response) => {
 });
 
 router.get("/latest-movies-updates", async (req: Request, res: Response) => {
-  try {
-    if (LockManager.isBusy()) res.json({ message: "Server is Currently Busy with another Process!."});
-    LockManager.setBusy(true);
+  if (LockManager.isBusy()) res.json({ message: "Server is Currently Busy with another Process!."});
 
+  try {
+    LockManager.setBusy(true);
     const allMovies = await Movies.find();
 
     for (const movie of allMovies) {
@@ -61,9 +61,9 @@ router.get("/latest-movies-updates", async (req: Request, res: Response) => {
 router.get("/get-playableLinks", async (req: Request, res: Response) => {
   let browser: any = null;
   const { movieName } = req.body;
+  if (LockManager.isBusy()) res.json({message: "Server is Currently Busy with another Process!."});
 
   try {
-    if (LockManager.isBusy()) res.json({message: "Server is Currently Busy with another Process!."});
     LockManager.setBusy(true);
 
     const playableServer = await getServerUrls(browser, moviesUrl, movieName);
@@ -81,8 +81,9 @@ router.get("/get-playableLinks", async (req: Request, res: Response) => {
 });
 
 router.get("/programs", async (req: Request, res: Response) => {
+  if (LockManager.isBusy()) res.json({message: "Server is Currently Busy with another Process!."});
+
   try {
-    if (LockManager.isBusy()) res.json({message: "Server is Currently Busy with another Process!."});
     LockManager.setBusy(true);
     const movies = await Movies.find({});
     res.json({ message: "Movies fetched successfully", data: movies }).status(200);
@@ -98,9 +99,9 @@ router.get("/programs", async (req: Request, res: Response) => {
 router.post("/update-movie", async (req: Request, res: Response) => {
   const { Title } = req.body;
   let browser: any = null;
+  if (LockManager.isBusy()) res.json({message: "Server is Currently Busy with another Process!."});
 
   try {
-    if (LockManager.isBusy()) res.json({message: "Server is Currently Busy with another Process!."});
     LockManager.setBusy(true);
 
     const playLink = await UpdateMovie(browser, moviesUrl, Title);
@@ -121,9 +122,9 @@ router.post("/update-movie", async (req: Request, res: Response) => {
 router.post("/find-show", async (req: Request, res: Response) => {
   const { Title, showType } = req.body;
   let browser: any;
+  if (LockManager.isBusy()) res.json({message: "Server is Currently Busy with another Process!."});
 
   try {
-    if (LockManager.isBusy()) res.json({message: "Server is Currently Busy with another Process!."});
     LockManager.setBusy(true);
 
     const newShow = await FindShow(browser, moviesUrl, Title, showType);
