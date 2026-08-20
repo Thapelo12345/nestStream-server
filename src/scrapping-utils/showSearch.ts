@@ -293,7 +293,7 @@ async function FindShow(
     const fullSeason = await GetSeason(mainPage, seasons[0])
     newSeason =  { season: fullSeason.currentSeason, episodes: fullSeason.episodes }
 
-      seasonsAndEpisodes.push(newSeason);
+    seasonsAndEpisodes.push(newSeason);
 
     const waitingSeasons = seasons.filter((season: string) => {
       let seasonExist = false;
