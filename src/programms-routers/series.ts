@@ -1,5 +1,4 @@
 import type { Request, Response, Router } from "express";
-import LockManager = require("../lockState");
 
 const express = require("express");
 const { brandNewShows } = require("../scrapping-utils/scrapping");
@@ -19,11 +18,8 @@ router.get("/", async (req: Request, res: Response) => {
 });
 
 router.get("/latestDate", async (req: Request, res: Response) => {
-  if (LockManager.isBusy()) res.json({message: "Server is Currently Busy!."});
-  
-  try {
-    LockManager.setBusy(true);
 
+  try {
     const allSeries = await Series.find();
     console.log("Got all the series documents!.");
 
@@ -70,19 +66,14 @@ router.get("/latestDate", async (req: Request, res: Response) => {
 
   } catch (err: unknown) {
     const errMessage = err instanceof Error ? err.message : "unknown error!.";
-   
     res.json({message: "Failed to update Series!.", errorMessage: errMessage,});
-    
-  }finally{LockManager.setBusy(false);}
+  }
 });
 
 router.get("/new-series", async (req: Request, res: Response) => {
   let browser: any;
-  if (LockManager.isBusy()) res.json({message: "Server is Currently Busy with another Process!."});
 
   try {
-    LockManager.setBusy(true);
-
     const results = await brandNewShows(browser, seriesUrl);
     res.json({ message: "Added new shows successfully!..", results });
 
@@ -91,39 +82,28 @@ router.get("/new-series", async (req: Request, res: Response) => {
     console.error(errMessage);
     res.json({ message: "Failed to add new Shows!.." });
     
-  }finally{
-    LockManager.setBusy(false);
-    if (browser) await browser.close();
-  }
+  }finally{if (browser) await browser.close();}
 });
 
 router.get("/programs", async (req: Request, res: Response) => {
-  if (LockManager.isBusy()) res.json({message: "Server is Currently Busy with another Process!."});
 
   try {
-    LockManager.setBusy(true);
-
     const show = await Series.find({});
     console.log("Show Data recieved successfully!.");
-    
     res.json({ message: "Series fetched successfully", data: show }).status(200);
 
   } catch (err: unknown) {
     const errMessage = err instanceof Error ? err.message : "unknown error!";
     console.error(errMessage);
     res.json({ message: "Error fetching series!" }).status(500);
-    
-  }finally{LockManager.setBusy(false);}
+  }
 });
 
 router.post("/get-playableLinks", async (req: Request, res: Response) => {
   let browser: any = null;
   const { seriesName, season, episode } = req.body;
-  if (LockManager.isBusy()) res.json({message: "Server is Currently Busy with another Process!."});
 
   try {
-    LockManager.setBusy(true);
-
     const playableServer = await getServerUrls(
       browser,
       seriesUrl,
@@ -139,20 +119,14 @@ router.post("/get-playableLinks", async (req: Request, res: Response) => {
     console.error(errMessage);
     res.json({ message: errMessage });
     
-  }finally{
-    LockManager.setBusy(false);
-    if (browser) await browser.close();
-  }
+  }finally{if (browser) await browser.close();}
 });
 
 router.post("/search-url", async (req: Request, res: Response) => {
   const { Title, Season, Episode } = req.body;
   let browser: any = null;
-  if (LockManager.isBusy()) res.json({message: "Server is Currently Busy with another Process!."});
 
   try {
-    LockManager.setBusy(true);
-
     const url = await SeriesGetUrl(browser, seriesUrl, Title, Season, Episode);
     console.log("Url Retrived successfully!.");
     
@@ -164,21 +138,14 @@ router.post("/search-url", async (req: Request, res: Response) => {
     
     res.json({ message: errMessage }).status(404);
 
-  }finally{
-    LockManager.setBusy(false);
-    if (browser) await browser.close();
-  }
+  }finally{if (browser) await browser.close();}
 });
 
 router.post("/add-season", async (req: Request, res: Response) => {
   const { Title } = req.body;
-
   let browser: any;
-  if (LockManager.isBusy()) res.json({message: "Server is Currently Busy with another Process!."});
 
   try {
-    LockManager.setBusy(true);
-
     if (!Title) throw new Error("Title empty!..");
     const nextSeason = await AddSeason(browser, seriesUrl, Title);
     
@@ -189,21 +156,14 @@ router.post("/add-season", async (req: Request, res: Response) => {
     console.log(errMessage);
     res.json({ message: "Failed to add season!.." });
     
-  }finally{
-    LockManager.setBusy(false)
-    if (browser) await browser.close();
-  }
+  }finally{if (browser) await browser.close();}
 }); //end of add season route
 
 router.post("/find-show", async (req: Request, res: Response) => {
   const { Title, showType } = req.body;
   let browser: any;
 
-  if (LockManager.isBusy()) res.json({message: "Server is Currently Busy with another Process!."});
-
   try {
-    LockManager.setBusy(true);
-
     const newShow = await FindShow(browser, seriesUrl, Title, showType);
     console.log("Show was successfully FOUND!.");
    
@@ -215,10 +175,7 @@ router.post("/find-show", async (req: Request, res: Response) => {
 
     res.json({ message: "Failed to find show!.." });
   
-  }finally{
-     LockManager.setBusy(false)
-     if (browser) await browser.close();
-  } 
+  }finally{if (browser) await browser.close();} 
 }); //end of route
 
 module.exports = router;
