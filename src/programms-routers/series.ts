@@ -10,6 +10,9 @@ const {
   AddSeason,
 } = require("../scrapping-utils/showSearch");
 
+ // created the abort controller
+  
+
 const router: Router = express.Router();
 const seriesUrl = "https://watchseriestv.org/tv-shows";
 
@@ -71,10 +74,11 @@ router.get("/latestDate", async (req: Request, res: Response) => {
 });
 
 router.get("/new-series", async (req: Request, res: Response) => {
-  let browser: any;
+  
+  const browserRef = { instance: null as any }
 
   try {
-    const results = await brandNewShows(browser, seriesUrl);
+    const results = await brandNewShows(browserRef.instance, seriesUrl);
     res.json({ message: "Added new shows successfully!..", results });
 
   } catch (err: unknown) {
@@ -82,7 +86,12 @@ router.get("/new-series", async (req: Request, res: Response) => {
     console.error(errMessage);
     res.json({ message: "Failed to add new Shows!.." });
     
-  }finally{if (browser) await browser.close();}
+  }finally{
+    if (browserRef.instance) {
+      try {await browserRef.instance.close();}
+       catch (closeError) {console.error("Failed cleaning up active workspace allocations:", closeError);}
+    }
+  }
 });
 
 router.get("/programs", async (req: Request, res: Response) => {
@@ -100,12 +109,13 @@ router.get("/programs", async (req: Request, res: Response) => {
 });
 
 router.post("/get-playableLinks", async (req: Request, res: Response) => {
-  let browser: any = null;
+  // let browser: any = null;
   const { seriesName, season, episode } = req.body;
-
+  
+  const browserRef = { instance: null as any }
   try {
     const playableServer = await getServerUrls(
-      browser,
+      browserRef.instance,
       seriesUrl,
       seriesName,
       season,
@@ -119,15 +129,21 @@ router.post("/get-playableLinks", async (req: Request, res: Response) => {
     console.error(errMessage);
     res.json({ message: errMessage });
     
-  }finally{if (browser) await browser.close();}
+  }finally{
+    if (browserRef.instance) {
+      try {await browserRef.instance.close();}
+       catch (closeError) {console.error("Failed cleaning up active workspace allocations:", closeError);}
+    }
+  }
 });
 
 router.post("/search-url", async (req: Request, res: Response) => {
   const { Title, Season, Episode } = req.body;
-  let browser: any = null;
+  // let browser: any = null;
+  const browserRef = { instance: null as any }
 
   try {
-    const url = await SeriesGetUrl(browser, seriesUrl, Title, Season, Episode);
+    const url = await SeriesGetUrl(browserRef.instance, seriesUrl, Title, Season, Episode);
     console.log("Url Retrived successfully!.");
     
     res.json({ playLink: url }).status(200);
@@ -138,33 +154,51 @@ router.post("/search-url", async (req: Request, res: Response) => {
     
     res.json({ message: errMessage }).status(404);
 
-  }finally{if (browser) await browser.close();}
+  }finally{
+    if (browserRef.instance) {
+      try {await browserRef.instance.close();}
+       catch (closeError) {console.error("Failed cleaning up active workspace allocations:", closeError);}
+    }
+  }
 });
 
 router.post("/add-season", async (req: Request, res: Response) => {
   const { Title } = req.body;
-  let browser: any;
 
+  const browserRef = { instance: null as any }
+
+  req.on("close", ()=> console.log("On Close Request Run!..."))
+  
   try {
+
     if (!Title) throw new Error("Title empty!..");
-    const nextSeason = await AddSeason(browser, seriesUrl, Title);
-    
-    res.json({ message: "Season Retrived successfully!.", nextSeason }).status(200);
+    const nextSeason = await AddSeason(browserRef, seriesUrl, Title );
+
+    res.json({ message: "Season Retrived successfully!.", nextSeason })
 
   } catch (err: unknown) {
     const errMessage = err instanceof Error ? err.message : "unknown error!.";
     console.log(errMessage);
     res.json({ message: "Failed to add season!.." });
     
-  }finally{if (browser) await browser.close();}
+  }
+  finally{
+    // 6. Access the true runtime pointer through our wrapper reference configuration
+    if (browserRef.instance) {
+      try {await browserRef.instance.close();}
+       catch (closeError) {console.error("Failed cleaning up active workspace allocations:", closeError);}
+    }
+  
+  }
 }); //end of add season route
 
 router.post("/find-show", async (req: Request, res: Response) => {
   const { Title, showType } = req.body;
-  let browser: any;
+  // let browser: any;
+  const browserRef = { instance: null as any }
 
   try {
-    const newShow = await FindShow(browser, seriesUrl, Title, showType);
+    const newShow = await FindShow(browserRef.instance, seriesUrl, Title, showType);
     console.log("Show was successfully FOUND!.");
    
     res.json({ message: "Retrive show Successfully!.", showData: newShow }).status(200);
@@ -175,7 +209,11 @@ router.post("/find-show", async (req: Request, res: Response) => {
 
     res.json({ message: "Failed to find show!.." });
   
-  }finally{if (browser) await browser.close();} 
+  }finally{
+    if (browserRef.instance) {
+      try {await browserRef.instance.close();}
+       catch (closeError) {console.error("Failed cleaning up active workspace allocations:", closeError);}
+    }} 
 }); //end of route
 
 module.exports = router;

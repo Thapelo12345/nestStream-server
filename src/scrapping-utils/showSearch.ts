@@ -7,14 +7,14 @@ const {
 } = require("./scrappingUtils");
 
 async function SeriesGetUrl(
-  browser: any,
+  browserRef: { instance: any },
   pageUrl: string,
   title: string,
   season: string,
   episode: string,
 ) {
  
-    browser = await chromium.launch({headles: true,
+    browserRef.instance = await chromium.launch({headles: true,
       args: [
       '--no-sandbox',
     '--disable-setuid-sandbox',
@@ -27,7 +27,7 @@ async function SeriesGetUrl(
       ]
     })
     
-  const context = await browser.newContext();
+  const context = await browserRef.instance.newContext();
   const mainPage = await context.newPage();
 
   // opening upLink to page
@@ -112,9 +112,9 @@ async function SeriesGetUrl(
   return playLink;
 }
 
-async function UpdateMovie(browser: any, pageUrl: string, title: string) {
+async function UpdateMovie(browserRef: { instance: any }, pageUrl: string, title: string) {
  
-  browser = await chromium.launch({headles: true,
+  browserRef.instance = await chromium.launch({headles: true,
       args: [
       '--no-sandbox',
     '--disable-setuid-sandbox',
@@ -127,7 +127,7 @@ async function UpdateMovie(browser: any, pageUrl: string, title: string) {
       ]
     })
     
-  const context = await browser.newContext();
+  const context = await browserRef.instance.newContext();
   const mainPage = await context.newPage();
 
   // opening upLink to page
@@ -180,13 +180,13 @@ async function UpdateMovie(browser: any, pageUrl: string, title: string) {
 } //end of update movie function
 
 async function FindShow(
-  browser: any,
+ browserRef: { instance: any },
   pageUrl: string,
   title: string,
   typeOfShow: string,
 ) {
  
-    browser = await chromium.launch({headles: true,
+    browserRef.instance = await chromium.launch({headles: true,
       args: [
       '--no-sandbox',
     '--disable-setuid-sandbox',
@@ -199,7 +199,7 @@ async function FindShow(
       ]
     })
       
-  const context = await browser.newContext();
+  const context = await browserRef.instance.newContext();
   const mainPage = await context.newPage();
 
   // opening upLink to page
@@ -359,10 +359,10 @@ async function FindShow(
   
 } //end of find show function
 
-async function AddSeason(browser: any, pageUrl: string, title: string) {
+async function AddSeason(browserRef: { instance: any }, pageUrl: string, title: string) {
   const cloudShow = await Series.findOne({ seriesHeader: title });
-
-    browser = await chromium.launch({headles: true,
+  
+    browserRef.instance = await chromium.launch({headles: true,
       args: [
       '--no-sandbox',
     '--disable-setuid-sandbox',
@@ -375,7 +375,7 @@ async function AddSeason(browser: any, pageUrl: string, title: string) {
       ]
     })
       
-  const context = await browser.newContext();
+  const context = await browserRef.instance.newContext();
   const mainPage = await context.newPage();
 
   // opening upLink to page
@@ -396,7 +396,7 @@ async function AddSeason(browser: any, pageUrl: string, title: string) {
   console.log("Clicking Search btn!.");
   await searchBtn.click();
 
-  await mainPage.locator(".show-card").first().waitFor({state: "visible"})
+  await mainPage.locator(".show-card").first().waitFor({state: "visible" })
 
   const card = await mainPage.locator(".show-card").first();
 

@@ -15,10 +15,10 @@ router.get("/", async (req: Request, res: Response) => {
 });
 
 router.get("/new-movies", async (req: Request, res: Response) => {
-  let browser: any;
+  const browserRef = { instance: null as any }
 
   try {
-      const results = await brandNewShows(browser, moviesUrl);
+      const results = await brandNewShows(browserRef.instance, moviesUrl);
       res.json({ message: "Added new shows successfully!..", results });
 
   } catch (err: unknown) {
@@ -27,7 +27,12 @@ router.get("/new-movies", async (req: Request, res: Response) => {
 
     res.json({ message: "Failed to add new Shows!.." });
   }
-  finally{if (browser) await browser.close();}
+  finally{
+    if (browserRef.instance) {
+      try {await browserRef.instance.close();}
+       catch (closeError) {console.error("Failed cleaning up active workspace allocations:", closeError);}
+    }
+  }
 });
 
 router.get("/latest-movies-updates", async (req: Request, res: Response) => {
@@ -50,11 +55,11 @@ router.get("/latest-movies-updates", async (req: Request, res: Response) => {
 });
 
 router.get("/get-playableLinks", async (req: Request, res: Response) => {
-  let browser: any = null;
   const { movieName } = req.body;
+  const browserRef = { instance: null as any }
 
   try {
-    const playableServer = await getServerUrls(browser, moviesUrl, movieName);
+    const playableServer = await getServerUrls(browserRef.instance, moviesUrl, movieName);
     res.json({ playableLinks: playableServer });
 
   } catch (err: unknown) {
@@ -62,7 +67,12 @@ router.get("/get-playableLinks", async (req: Request, res: Response) => {
     console.error(errMessage);
     res.json({ message: errMessage });
    
-  }finally{if (browser) await browser.close();}
+  }finally{
+    if (browserRef.instance) {
+      try {await browserRef.instance.close();}
+       catch (closeError) {console.error("Failed cleaning up active workspace allocations:", closeError);}
+    }
+  }
 });
 
 router.get("/programs", async (req: Request, res: Response) => {
@@ -79,10 +89,11 @@ router.get("/programs", async (req: Request, res: Response) => {
 
 router.post("/update-movie", async (req: Request, res: Response) => {
   const { Title } = req.body;
-  let browser: any = null;
+  // let browser: any = null;
+  const browserRef = { instance: null as any }
 
   try {
-    const playLink = await UpdateMovie(browser, moviesUrl, Title);
+    const playLink = await UpdateMovie(browserRef.instance, moviesUrl, Title);
     console.log("Movie updated successfully!.");
     res.json({ playLink }).status(200);
 
@@ -91,15 +102,21 @@ router.post("/update-movie", async (req: Request, res: Response) => {
     console.log(errMessage);
     res.json({ message: "Falied to update NETWORK ERROR!." }).status(500);
     
-  }finally{if (browser) await browser.close();}
+  }finally{
+    if (browserRef.instance) {
+      try {await browserRef.instance.close();}
+       catch (closeError) {console.error("Failed cleaning up active workspace allocations:", closeError);}
+    }
+  }
 }); //end o f update movie route
 
 router.post("/find-show", async (req: Request, res: Response) => {
   const { Title, showType } = req.body;
-  let browser: any;
+  // let browser: any;
+  const browserRef = { instance: null as any }
 
   try {
-    const newShow = await FindShow(browser, moviesUrl, Title, showType);
+    const newShow = await FindShow(browserRef.instance, moviesUrl, Title, showType);
     console.log("Show was successfully FOUND!.");
    
     res.json({ message: "Retrive show Successfully!.", showData: newShow }).status(200);
@@ -109,7 +126,12 @@ router.post("/find-show", async (req: Request, res: Response) => {
     console.log(errMessage);
     res.json({ message: "Failed to find show!.." });
     
-  }finally{if (browser) await browser.close();}
+  }finally{
+    if (browserRef.instance) {
+      try {await browserRef.instance.close();}
+       catch (closeError) {console.error("Failed cleaning up active workspace allocations:", closeError);}
+    }
+  }
 }); //end of route
 
 module.exports = router;

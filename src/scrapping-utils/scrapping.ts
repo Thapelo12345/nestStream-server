@@ -2,8 +2,8 @@ const { chromium } = require("playwright");
 const { Series, Movies } = require("../dataBase/connection");
 const {retryAction, GetSeason, scrappeCardInfo } = require("./scrappingUtils");
 
-async function brandNewShows(browser: any, pageUrl: string) {
-  browser = await chromium.launch({headles: true,
+async function brandNewShows(browserRef: { instance: any }, pageUrl: string) {
+  browserRef.instance = await chromium.launch({headles: true,
       args: [
       '--no-sandbox',
     '--disable-setuid-sandbox',
@@ -16,7 +16,7 @@ async function brandNewShows(browser: any, pageUrl: string) {
       ]
   })
     
-  const context = await browser.newContext();
+  const context = await browserRef.instance.newContext();
   const mainPage = await context.newPage();
 
   const newShows: any[] = [];

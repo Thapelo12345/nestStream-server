@@ -7,16 +7,14 @@ const {
 } = require("./scrappingUtils");
 
 async function getServerUrls(
-  browser: any,
+  browserRef: { instance: any },
   navigate: string,
   prgrammeName: string,
   season?: string,
   episode?: string,
 ) {
-  browser = await chromium.launch({headless: true})
-  // browser = await chromium.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']});
-/*
-  browser = await chromium.launch({headles: true,
+
+  browserRef.instance = await chromium.launch({headles: true,
       args: [
       '--no-sandbox',
     '--disable-setuid-sandbox',
@@ -28,8 +26,8 @@ async function getServerUrls(
     '--js-flags="--max-old-space-size=150"'
       ]
     })
-    */
-  const context = await browser.newContext();
+    
+  const context = await browserRef.instance.newContext();
   const mainPage = await context.newPage();
 
   await retryAction(
