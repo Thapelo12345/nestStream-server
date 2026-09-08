@@ -10,11 +10,8 @@ const {
   AddSeason,
 } = require("../scrapping-utils/showSearch");
 
- // created the abort controller
-  
-
 const router: Router = express.Router();
-const seriesUrl = "https://watchseriestv.org/tv-shows";
+const seriesUrl = "https://watchseriestv.co/tv-shows";
 
 router.get("/", async (req: Request, res: Response) => {
   res.json({ message: "Series router is working!." });
@@ -78,7 +75,7 @@ router.get("/new-series", async (req: Request, res: Response) => {
   const browserRef = { instance: null as any }
 
   try {
-    const results = await brandNewShows(browserRef.instance, seriesUrl);
+    const results = await brandNewShows(browserRef, seriesUrl);
     res.json({ message: "Added new shows successfully!..", results });
 
   } catch (err: unknown) {
@@ -115,7 +112,7 @@ router.post("/get-playableLinks", async (req: Request, res: Response) => {
   const browserRef = { instance: null as any }
   try {
     const playableServer = await getServerUrls(
-      browserRef.instance,
+      browserRef,
       seriesUrl,
       seriesName,
       season,
@@ -139,11 +136,10 @@ router.post("/get-playableLinks", async (req: Request, res: Response) => {
 
 router.post("/search-url", async (req: Request, res: Response) => {
   const { Title, Season, Episode } = req.body;
-  // let browser: any = null;
   const browserRef = { instance: null as any }
-
+  
   try {
-    const url = await SeriesGetUrl(browserRef.instance, seriesUrl, Title, Season, Episode);
+    const url = await SeriesGetUrl(browserRef, seriesUrl, Title, Season, Episode);
     console.log("Url Retrived successfully!.");
     
     res.json({ playLink: url }).status(200);
@@ -198,14 +194,15 @@ router.post("/find-show", async (req: Request, res: Response) => {
   const browserRef = { instance: null as any }
 
   try {
-    const newShow = await FindShow(browserRef.instance, seriesUrl, Title, showType);
+    const newShow = await FindShow(browserRef, seriesUrl, Title, showType);
+
     console.log("Show was successfully FOUND!.");
    
     res.json({ message: "Retrive show Successfully!.", showData: newShow }).status(200);
 
   } catch (err: unknown) {
     const errMessage = err instanceof Error ? err.message : "unknown server error!.";
-    console.log(errMessage);
+    console.error(errMessage);
 
     res.json({ message: "Failed to find show!.." });
   

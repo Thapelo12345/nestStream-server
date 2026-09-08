@@ -6,7 +6,7 @@ const { Movies } = require("../dataBase/connection");
 const { FindShow } = require("../scrapping-utils/showSearch");
 const { UpdateMovie } = require("../scrapping-utils/showSearch");
 const { getServerUrls } = require("../scrapping-utils/server-urls");
-const moviesUrl = "https://watchseriestv.org/movies";
+const moviesUrl = "https://watchseriestv.co/movies";
 
 const router: Router = express.Router();
 
@@ -18,7 +18,7 @@ router.get("/new-movies", async (req: Request, res: Response) => {
   const browserRef = { instance: null as any }
 
   try {
-      const results = await brandNewShows(browserRef.instance, moviesUrl);
+      const results = await brandNewShows(browserRef, moviesUrl);
       res.json({ message: "Added new shows successfully!..", results });
 
   } catch (err: unknown) {
@@ -59,7 +59,7 @@ router.get("/get-playableLinks", async (req: Request, res: Response) => {
   const browserRef = { instance: null as any }
 
   try {
-    const playableServer = await getServerUrls(browserRef.instance, moviesUrl, movieName);
+    const playableServer = await getServerUrls(browserRef, moviesUrl, movieName);
     res.json({ playableLinks: playableServer });
 
   } catch (err: unknown) {
@@ -93,7 +93,7 @@ router.post("/update-movie", async (req: Request, res: Response) => {
   const browserRef = { instance: null as any }
 
   try {
-    const playLink = await UpdateMovie(browserRef.instance, moviesUrl, Title);
+    const playLink = await UpdateMovie(browserRef, moviesUrl, Title);
     console.log("Movie updated successfully!.");
     res.json({ playLink }).status(200);
 
@@ -116,7 +116,7 @@ router.post("/find-show", async (req: Request, res: Response) => {
   const browserRef = { instance: null as any }
 
   try {
-    const newShow = await FindShow(browserRef.instance, moviesUrl, Title, showType);
+    const newShow = await FindShow(browserRef, moviesUrl, Title, showType);
     console.log("Show was successfully FOUND!.");
    
     res.json({ message: "Retrive show Successfully!.", showData: newShow }).status(200);

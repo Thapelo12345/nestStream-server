@@ -185,6 +185,8 @@ async function FindShow(
   title: string,
   typeOfShow: string,
 ) {
+
+  console.log("Utility function FindShow() is running!.");
  
     browserRef.instance = await chromium.launch({headles: true,
       args: [
